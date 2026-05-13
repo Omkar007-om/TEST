@@ -1,0 +1,189 @@
+mysql> create table employee (
+    ->     emp_id int primary key,
+    ->     first_name varchar(30),
+    ->     last_name varchar(30),
+    ->     email varchar(50),
+    ->     phone_no varchar(15),
+    ->     hire_date date,
+    ->     job_profile varchar(30),
+    ->     salary decimal(10,2),
+    ->     hra decimal(10,2)
+    -> );
+    -> //
+Query OK, 0 rows affected (0.177 sec)
+
+mysql> create table company_info (
+    ->     emp_count int,
+    ->     total_salary_expenses decimal(15,2)
+    -> );//
+Query OK, 0 rows affected (0.171 sec)
+
+mysql> create table emp_log (
+    ->     emp_id int,
+    ->     old_salary decimal(10,2),
+    ->     new_salary decimal(10,2),
+    ->     edit_time datetime,
+    ->     job_status varchar(20)
+    -> );//
+Query OK, 0 rows affected (0.163 sec)
+
+mysql> insert into company_info
+    -> values (0,0);//
+Query OK, 1 row affected (0.048 sec)
+
+mysql> create trigger before_insert
+    -> before insert on employee
+    -> for each row
+    -> begin
+    -> set new.hra = new.salary * 0.2;
+    -> end//
+Query OK, 0 rows affected (0.079 sec)
+
+mysql> create trigger after_insert
+    -> after insert on employee
+    -> for each row
+    -> begin
+    -> update company_info set emp_count = emp_count + 1,total_salary_expenses = total_salary_expenses + new.salary;
+    -> insert into emp_log values(new.emp_id,NULL,new.salary,NOW(),'hired');
+    -> end//
+Query OK, 0 rows affected (0.083 sec)
+
+mysql> create trigger before_update
+    -> before update on employee
+    -> for each row
+    -> begin
+    -> insert into emp_log values(new.emp_id,old.salary,new.salary,NOW(),'salary changed');
+    -> end//
+Query OK, 0 rows affected (0.094 sec)
+
+mysql> create trigger after_update
+    -> after update on employee
+    -> for each row
+    -> begin
+    -> update company_info set total_salary_expenses = total_salary_expenses - old.salary + new.salary;
+    -> end//
+Query OK, 0 rows affected (0.098 sec)
+
+mysql> create trigger before_delete
+    -> before delete on employee
+    -> for each row
+    -> begin
+    -> insert into emp_log values(old.emp_id,old.salary,NULL,NOW(),'deleted');
+    -> end//
+Query OK, 0 rows affected (0.086 sec)
+
+mysql> create trigger after_delete
+    -> after delete on employee
+    -> for each row
+    -> begin
+    ->
+    ->     update company_info
+    ->     set emp_count = emp_count - 1,
+    ->         total_salary_expenses =
+    ->         total_salary_expenses - old.salary;
+    ->
+    -> end //
+Query OK, 0 rows affected (0.068 sec)
+
+mysql> select * from employee;
+    -> //
+Empty set (0.015 sec)
+
+mysql> delimiter ;
+mysql> select * from company_info;
++-----------+-----------------------+
+| emp_count | total_salary_expenses |
++-----------+-----------------------+
+|         0 |                  0.00 |
++-----------+-----------------------+
+1 row in set (0.007 sec)
+
+mysql> select * from emp_log;
+Empty set (0.018 sec)
+
+mysql> insert into employee
+    -> values (
+    ->     101,
+    ->     'john',
+    ->     'doe',
+    ->     'john@gmail.com',
+    ->     '9876543210',
+    ->     '2024-01-10',
+    ->     'manager',
+    ->     50000,
+    ->     null
+    -> );
+Query OK, 1 row affected (0.057 sec)
+
+mysql> select * from employee;
++--------+------------+-----------+----------------+------------+------------+-------------+----------+----------+
+| emp_id | first_name | last_name | email          | phone_no   | hire_date  | job_profile | salary   | hra      |
++--------+------------+-----------+----------------+------------+------------+-------------+----------+----------+
+|    101 | john       | doe       | john@gmail.com | 9876543210 | 2024-01-10 | manager     | 50000.00 | 10000.00 |
++--------+------------+-----------+----------------+------------+------------+-------------+----------+----------+
+1 row in set (0.008 sec)
+
+mysql> select * from emp_log;
++--------+------------+------------+---------------------+------------+
+| emp_id | old_salary | new_salary | edit_time           | job_status |
++--------+------------+------------+---------------------+------------+
+|    101 |       NULL |   50000.00 | 2026-05-09 23:01:42 | hired      |
++--------+------------+------------+---------------------+------------+
+1 row in set (0.007 sec)
+
+mysql> select * from company_info;
++-----------+-----------------------+
+| emp_count | total_salary_expenses |
++-----------+-----------------------+
+|         1 |              50000.00 |
++-----------+-----------------------+
+1 row in set (0.006 sec)
+
+mysql> update employee
+    -> set salary = 60000
+    -> where emp_id = 101;
+Query OK, 1 row affected (0.038 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from emp_log;
++--------+------------+------------+---------------------+----------------+
+| emp_id | old_salary | new_salary | edit_time           | job_status     |
++--------+------------+------------+---------------------+----------------+
+|    101 |       NULL |   50000.00 | 2026-05-09 23:01:42 | hired          |
+|    101 |   50000.00 |   60000.00 | 2026-05-09 23:02:27 | salary changed |
++--------+------------+------------+---------------------+----------------+
+2 rows in set (0.008 sec)
+
+mysql> select * from company_info;
++-----------+-----------------------+
+| emp_count | total_salary_expenses |
++-----------+-----------------------+
+|         1 |              60000.00 |
++-----------+-----------------------+
+1 row in set (0.006 sec)
+
+mysql> delete from employee
+    -> where emp_id = 101;
+Query OK, 1 row affected (0.051 sec)
+
+mysql> select * from company_info;
++-----------+-----------------------+
+| emp_count | total_salary_expenses |
++-----------+-----------------------+
+|         0 |                  0.00 |
++-----------+-----------------------+
+1 row in set (0.007 sec)
+
+mysql> select * from emp_log;
++--------+------------+------------+---------------------+----------------+
+| emp_id | old_salary | new_salary | edit_time           | job_status     |
++--------+------------+------------+---------------------+----------------+
+|    101 |       NULL |   50000.00 | 2026-05-09 23:01:42 | hired          |
+|    101 |   50000.00 |   60000.00 | 2026-05-09 23:02:27 | salary changed |
+|    101 |   60000.00 |       NULL | 2026-05-09 23:02:53 | deleted        |
++--------+------------+------------+---------------------+----------------+
+3 rows in set (0.006 sec)
+
+mysql> select * from employee;
+Empty set (0.007 sec)
+

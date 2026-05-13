@@ -1,0 +1,383 @@
+mysql> create table customers(cust_id INT AUTO_INCREMENT PRIMARY KEY,cust_name VARCHAR(30) NOT NULL,email_id VARCHAR(30) UNIQUE,cust_city VARCHAR(20),date_created DATE);
+Query OK, 0 rows affected (0.667 sec)
+
+mysql> describe customers;
++--------------+-------------+------+-----+---------+----------------+
+| Field        | Type        | Null | Key | Default | Extra          |
++--------------+-------------+------+-----+---------+----------------+
+| cust_id      | int         | NO   | PRI | NULL    | auto_increment |
+| cust_name    | varchar(30) | NO   |     | NULL    |                |
+| email_id     | varchar(30) | YES  | UNI | NULL    |                |
+| cust_city    | varchar(20) | YES  |     | NULL    |                |
+| date_created | date        | YES  |     | NULL    |                |
++--------------+-------------+------+-----+---------+----------------+
+5 rows in set (0.279 sec)
+
+mysql> create table products(product_id INT AUTO_INCREMENT PRIMARY KEY,product_name VARCHAR(30) NOT NULL,price INT NOT NULL,product_category VARCHAR(30));
+Query OK, 0 rows affected (0.467 sec)
+
+mysql> describe products;
++------------------+-------------+------+-----+---------+----------------+
+| Field            | Type        | Null | Key | Default | Extra          |
++------------------+-------------+------+-----+---------+----------------+
+| product_id       | int         | NO   | PRI | NULL    | auto_increment |
+| product_name     | varchar(30) | NO   |     | NULL    |                |
+| price            | int         | NO   |     | NULL    |                |
+| product_category | varchar(30) | YES  |     | NULL    |                |
++------------------+-------------+------+-----+---------+----------------+
+4 rows in set (0.265 sec)
+
+mysql> create table orders(order_id INT AUTO_INCREMENT PRIMARY KEY,customer_id INT,product_id INT,order_date DATE NOT NULL, quantity INT, amount INT NOT NULL, FOREIGN KEY (customer_id) REFERENCES customers(cust_id) ON DELETE CASCADE,FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE);
+Query OK, 0 rows affected (0.574 sec)
+
+mysql> describe orders;
++-------------+------+------+-----+---------+----------------+
+| Field       | Type | Null | Key | Default | Extra          |
++-------------+------+------+-----+---------+----------------+
+| order_id    | int  | NO   | PRI | NULL    | auto_increment |
+| customer_id | int  | YES  | MUL | NULL    |                |
+| product_id  | int  | YES  | MUL | NULL    |                |
+| order_date  | date | NO   |     | NULL    |                |
+| quantity    | int  | YES  |     | NULL    |                |
+| amount      | int  | NO   |     | NULL    |                |
++-------------+------+------+-----+---------+----------------+
+6 rows in set (0.032 sec)
+
+mysql> insert into customers(cust_name,email_id,cust_city,date_created) values
+    -> ('Mohan Choudary','mohan@gmail.com','Pune','2022-03-21'),
+    -> ('Mrunal Deshpande','mrunal121@gmail.com','Mumbai','2023-09-14'),
+    -> ('Sameer Joshi','sameer99@gmail.com','Nashik','2019-03-10'),
+    -> ('Maulana','mulla911@gmail.com','Osmanabad','2014-09-12'),
+    -> ('Pujit Shah','pujji@gmail.com','Kolhapur','2025-03-07'),
+    -> ('Ramesh Shekar','ramu@gmail.com','Ratnagiri','2026-01-10'),
+    -> ('Isha Desai','isha@gmail.com','Nagpur','2019-02-11');
+Query OK, 7 rows affected (0.140 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> select * from customers;
++---------+------------------+---------------------+-----------+--------------+
+| cust_id | cust_name        | email_id            | cust_city | date_created |
++---------+------------------+---------------------+-----------+--------------+
+|       1 | Mohan Choudary   | mohan@gmail.com     | Pune      | 2022-03-21   |
+|       2 | Mrunal Deshpande | mrunal121@gmail.com | Mumbai    | 2023-09-14   |
+|       3 | Sameer Joshi     | sameer99@gmail.com  | Nashik    | 2019-03-10   |
+|       4 | Maulana          | mulla911@gmail.com  | Osmanabad | 2014-09-12   |
+|       5 | Pujit Shah       | pujji@gmail.com     | Kolhapur  | 2025-03-07   |
+|       6 | Ramesh Shekar    | ramu@gmail.com      | Ratnagiri | 2026-01-10   |
+|       7 | Isha Desai       | isha@gmail.com      | Nagpur    | 2019-02-11   |
++---------+------------------+---------------------+-----------+--------------+
+7 rows in set (0.012 sec)
+
+mysql> insert into products(product_name,price,product_category) values
+    -> ('Textbooks',799,'Stationary'),
+    -> ('Jeans',2999,'Cloth'),
+    -> ('Hoody',3500,'Cloth'),
+    -> ('Laptop',70000,'Electronics'),
+    -> ('Smartwatch',2500,'Electronics'),
+    -> ('School Bag',850,'Stationary');
+Query OK, 6 rows affected (0.287 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> select * from products;
++------------+--------------+-------+------------------+
+| product_id | product_name | price | product_category |
++------------+--------------+-------+------------------+
+|          1 | Textbooks    |   799 | Stationary       |
+|          2 | Jeans        |  2999 | Cloth            |
+|          3 | Hoody        |  3500 | Cloth            |
+|          4 | Laptop       | 70000 | Electronics      |
+|          5 | Smartwatch   |  2500 | Electronics      |
+|          6 | School Bag   |   850 | Stationary       |
++------------+--------------+-------+------------------+
+6 rows in set (0.009 sec)
+
+mysql> insert into orders(customer_id,product_id,order_date,quantity,amount) values
+    -> (1,2,'2024-06-03',1,2999),
+    -> (2,5,'2019-03-05',1,2500),
+    -> (3,6,'2022-11-16',1,850),
+    -> (5,3,'2018-01-02',1,3500),
+    -> (6,1,'2025-08-04',2,799),
+    -> (7,2,'2020-01-10',1,2999),
+    -> (2,3,'2023-06-09',1,3500),
+    -> (6,6,'2025-09-11',1,850);
+Query OK, 8 rows affected (0.284 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> select * from orders;
++----------+-------------+------------+------------+----------+--------+
+| order_id | customer_id | product_id | order_date | quantity | amount |
++----------+-------------+------------+------------+----------+--------+
+|        1 |           1 |          2 | 2024-06-03 |        1 |   2999 |
+|        2 |           2 |          5 | 2019-03-05 |        1 |   2500 |
+|        3 |           3 |          6 | 2022-11-16 |        1 |    850 |
+|        4 |           5 |          3 | 2018-01-02 |        1 |   3500 |
+|        5 |           6 |          1 | 2025-08-04 |        2 |    799 |
+|        6 |           7 |          2 | 2020-01-10 |        1 |   2999 |
+|        7 |           2 |          3 | 2023-06-09 |        1 |   3500 |
+|        8 |           6 |          6 | 2025-09-11 |        1 |    850 |
++----------+-------------+------------+------------+----------+--------+
+8 rows in set (0.235 sec)
+
+
+Find the Products with Electronics , Stationary or Cloth Category
+
+
+mysql> select * from products where product_category = 'Cloth';
++------------+--------------+-------+------------------+
+| product_id | product_name | price | product_category |
++------------+--------------+-------+------------------+
+|          2 | Jeans        |  2999 | Cloth            |
+|          3 | Hoody        |  3500 | Cloth            |
++------------+--------------+-------+------------------+
+2 rows in set (0.262 sec)
+
+mysql> select * from products where product_category = 'Electronics';
++------------+--------------+-------+------------------+
+| product_id | product_name | price | product_category |
++------------+--------------+-------+------------------+
+|          4 | Laptop       | 70000 | Electronics      |
+|          5 | Smartwatch   |  2500 | Electronics      |
++------------+--------------+-------+------------------+
+2 rows in set (0.231 sec)
+
+mysql> select * from products where product_category = 'Stationary';
++------------+--------------+-------+------------------+
+| product_id | product_name | price | product_category |
++------------+--------------+-------+------------------+
+|          1 | Textbooks    |   799 | Stationary       |
+|          6 | School Bag   |   850 | Stationary       |
++------------+--------------+-------+------------------+
+2 rows in set (0.011 sec)
+
+2. Find products whose price is between 1000 and 5000 for an Electronics catagory.
+
+mysql> select * from products
+    -> where (price BETWEEN 1000 AND 5000)
+    -> AND (product_category = 'Electronics');
++------------+--------------+-------+------------------+
+| product_id | product_name | price | product_category |
++------------+--------------+-------+------------------+
+|          5 | Smartwatch   |  2500 | Electronics      |
++------------+--------------+-------+------------------+
+1 row in set (0.018 sec)
+
+3. Find order details where the product name contains starts with E or C. 
+
+mysql> select * from products where product_name LIKE 'S%' OR product_name LIKE 'L%';
++------------+--------------+-------+------------------+
+| product_id | product_name | price | product_category |
++------------+--------------+-------+------------------+
+|          4 | Laptop       | 70000 | Electronics      |
+|          5 | Smartwatch   |  2500 | Electronics      |
+|          6 | School Bag   |   850 | Stationary       |
++------------+--------------+-------+------------------+
+3 rows in set (0.322 sec)
+
+4. Find name of 5 most expensive products.
+
+mysql> select product_name from products ORDER BY price DESC LIMIT 5;
++--------------+
+| product_name |
++--------------+
+| Laptop       |
+| Hoody        |
+| Jeans        |
+| Smartwatch   |
+| School Bag   |
++--------------+
+5 rows in set (0.012 sec)
+
+5. Find Customer details who have never placed an order.
+
+mysql> select * from customers where cust_id NOT IN (select customer_id from orders);
++---------+-----------+--------------------+-----------+--------------+
+| cust_id | cust_name | email_id           | cust_city | date_created |
++---------+-----------+--------------------+-----------+--------------+
+|       4 | Maulana   | mulla911@gmail.com | Osmanabad | 2014-09-12   |
++---------+-----------+--------------------+-----------+--------------+
+1 row in set (0.425 sec)
+
+mysql> select * from customers c
+    -> LEFT JOIN orders o
+    -> ON c.cust_id = o.customer_id
+    -> WHERE o.customer_id IS NULL;
++---------+-----------+--------------------+-----------+--------------+----------+-------------+------------+------------+----------+--------+
+| cust_id | cust_name | email_id           | cust_city | date_created | order_id | customer_id | product_id | order_date | quantity | amount |
++---------+-----------+--------------------+-----------+--------------+----------+-------------+------------+------------+----------+--------+
+|       4 | Maulana   | mulla911@gmail.com | Osmanabad | 2014-09-12   |     NULL |        NULL |       NULL | NULL       |     NULL |   NULL |
++---------+-----------+--------------------+-----------+--------------+----------+-------------+------------+------------+----------+--------+
+
+6. Display customer names who have placed orders worth more than 10000.
+
+mysql> select DISTINCT cust_name from customers c
+    -> INNER JOIN orders o
+    -> ON c.cust_id = o.customer_id
+    -> WHERE o.amount > 1000;
++------------------+
+| cust_name        |
++------------------+
+| Mohan Choudary   |
+| Mrunal Deshpande |
+| Pujit Shah       |
+| Isha Desai       |
++------------------+
+4 rows in set (0.467 sec)
+
+
+7. Calculate the total amount spent by each customer.
+
+mysql> select c.cust_name,SUM(o.amount * o.quantity) AS total_spent FROM orders o INNER JOIN customers c ON o.customer_id = c.cust_id GROUP BY o.customer_id;
++------------------+-------------+
+| cust_name        | total_spent |
++------------------+-------------+
+| Mohan Choudary   |        2999 |
+| Mrunal Deshpande |        6000 |
+| Sameer Joshi     |         850 |
+| Pujit Shah       |        3500 |
+| Ramesh Shekar    |        2448 |
+| Isha Desai       |        2999 |
++------------------+-------------+
+6 rows in set (0.073 sec)
+
+8. Display Products with price category (Cheap as less than 200 , Moderate between
+200 to 1000 Expensive greater than 1000). [select with clause]
+
+
+mysql> select product_name,price,
+    -> CASE
+    -> WHEN price > 10000 THEN 'Expensive'
+    -> WHEN price > 1000 THEN 'Moderate'
+    -> ELSE 'Cheap'
+    -> END AS price_category
+    -> FROM products;
++--------------+-------+----------------+
+| product_name | price | price_category |
++--------------+-------+----------------+
+| Textbooks    |   799 | Cheap          |
+| Jeans        |  2999 | Moderate       |
+| Hoody        |  3500 | Moderate       |
+| Laptop       | 70000 | Expensive      |
+| Smartwatch   |  2500 | Moderate       |
+| School Bag   |   850 | Cheap          |
++--------------+-------+----------------+
+6 rows in set (0.015 sec)
+
+9. Increase the product_price of all products in an Electronics category by 10%.
+
+mysql> UPDATE products SET price = 1.1 * price WHERE product_category = 'Electronics';
+Query OK, 2 rows affected (0.313 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> select * from products;
++------------+--------------+-------+------------------+
+| product_id | product_name | price | product_category |
++------------+--------------+-------+------------------+
+|          1 | Textbooks    |   799 | Stationary       |
+|          2 | Jeans        |  2999 | Cloth            |
+|          3 | Hoody        |  3500 | Cloth            |
+|          4 | Laptop       | 77000 | Electronics      |
+|          5 | Smartwatch   |  2750 | Electronics      |
+|          6 | School Bag   |   850 | Stationary       |
++------------+--------------+-------+------------------+
+6 rows in set (0.010 sec)
+
+10. Delete customers who have never placed any order.
+
+
+mysql> DELETE from customers where cust_id NOT IN(select customer_id from orders);
+Query OK, 1 row affected (0.293 sec)
+
+mysql> select * from customers;
++---------+------------------+---------------------+-----------+--------------+
+| cust_id | cust_name        | email_id            | cust_city | date_created |
++---------+------------------+---------------------+-----------+--------------+
+|       1 | Mohan Choudary   | mohan@gmail.com     | Pune      | 2022-03-21   |
+|       2 | Mrunal Deshpande | mrunal121@gmail.com | Mumbai    | 2023-09-14   |
+|       3 | Sameer Joshi     | sameer99@gmail.com  | Nashik    | 2019-03-10   |
+|       5 | Pujit Shah       | pujji@gmail.com     | Kolhapur  | 2025-03-07   |
+|       6 | Ramesh Shekar    | ramu@gmail.com      | Ratnagiri | 2026-01-10   |
+|       7 | Isha Desai       | isha@gmail.com      | Nagpur    | 2019-02-11   |
++---------+------------------+---------------------+-----------+--------------+
+6 rows in set (0.010 sec)
+
+11. Delete all orders older placed after ‘2020-01-01’
+
+mysql> delete from orders where order_date < '2020-01-01';
+Query OK, 2 rows affected (0.297 sec)
+
+mysql> select * from orders;
++----------+-------------+------------+------------+----------+--------+
+| order_id | customer_id | product_id | order_date | quantity | amount |
++----------+-------------+------------+------------+----------+--------+
+|        1 |           1 |          2 | 2024-06-03 |        1 |   2999 |
+|        3 |           3 |          6 | 2022-11-16 |        1 |    850 |
+|        5 |           6 |          1 | 2025-08-04 |        2 |    799 |
+|        6 |           7 |          2 | 2020-01-10 |        1 |   2999 |
+|        7 |           2 |          3 | 2023-06-09 |        1 |   3500 |
+|        8 |           6 |          6 | 2025-09-11 |        1 |    850 |
++----------+-------------+------------+------------+----------+--------+
+6 rows in set (0.008 sec)
+
+
+
+
+
+
+
+
+mysql> alter table orders
+    -> add stock INT DEFAULT 0;
+Query OK, 0 rows affected (0.714 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> select * from orders;
++----------+-------------+------------+------------+----------+--------+-------+
+| order_id | customer_id | product_id | order_date | quantity | amount | stock |
++----------+-------------+------------+------------+----------+--------+-------+
+|        1 |           1 |          2 | 2024-06-03 |        1 |   2999 |     0 |
+|        3 |           3 |          6 | 2022-11-16 |        1 |    850 |     0 |
+|        5 |           6 |          1 | 2025-08-04 |        2 |    799 |     0 |
+|        6 |           7 |          2 | 2020-01-10 |        1 |   2999 |     0 |
+|        7 |           2 |          3 | 2023-06-09 |        1 |   3500 |     0 |
+|        8 |           6 |          6 | 2025-09-11 |        1 |    850 |     0 |
++----------+-------------+------------+------------+----------+--------+-------+
+6 rows in set (0.010 sec)
+
+
+mysql> alter table orders
+    -> drop stock;
+Query OK, 0 rows affected (0.394 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> select * from orders;
++----------+-------------+------------+------------+----------+--------+
+| order_id | customer_id | product_id | order_date | quantity | amount |
++----------+-------------+------------+------------+----------+--------+
+|        1 |           1 |          2 | 2024-06-03 |        1 |   2999 |
+|        3 |           3 |          6 | 2022-11-16 |        1 |    850 |
+|        5 |           6 |          1 | 2025-08-04 |        2 |    799 |
+|        6 |           7 |          2 | 2020-01-10 |        1 |   2999 |
+|        7 |           2 |          3 | 2023-06-09 |        1 |   3500 |
+|        8 |           6 |          6 | 2025-09-11 |        1 |    850 |
++----------+-------------+------------+------------+----------+--------+
+6 rows in set (0.008 sec)
+
+
+
+mysql> TRUNCATE TABLE orders;
+Query OK, 0 rows affected (0.904 sec)
+
+mysql> select * from orders;
+Empty set (0.026 sec)
+
+mysql> drop table orders;
+Query OK, 0 rows affected (0.589 sec)
+
+mysql> show tables;
++----------------+
+| Tables_in_prep |
++----------------+
+| customers      |
+| products       |
++----------------+
+2 rows in set (0.370 sec)

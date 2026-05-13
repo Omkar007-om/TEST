@@ -1,0 +1,297 @@
+MariaDB [se21144_db]> CREATE TABLE Customer (
+    ->     Cust_name VARCHAR(50) PRIMARY KEY,
+    ->     AccNo INT UNIQUE,
+    ->     Balance INT,
+    ->     city VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.188 sec)
+
+MariaDB [se21144_db]> CREATE TABLE Loan (
+    ->     Loan_no VARCHAR(20) PRIMARY KEY,
+    ->     branch_name VARCHAR(50),
+    ->     Amount INT
+    -> );
+
+
+MariaDB [se21144_db]> CREATE TABLE Borrower (
+    ->     Cust_name VARCHAR(50),
+    ->     Loan_no VARCHAR(20),
+    ->     CreditScore INT,
+    ->     PRIMARY KEY (Cust_name, Loan_no),
+    ->     FOREIGN KEY (Cust_name) REFERENCES Customer(Cust_name),
+    ->     FOREIGN KEY (Loan_no) REFERENCES Loan(Loan_no)
+    -> );
+
+
+MariaDB [se21144_db]> INSERT INTO Customer (Cust_name, AccNo, Balance, city) VALUES 
+    -> ('Amit Sharma', 101, 50000, 'Mumbai'),
+    -> ('Priya Rai', 102, 120000, 'Delhi'),
+    -> ('Rahul Verma', 103, 30000, 'Pune'),
+    -> ('Sneha Kapoor', 104, 200000, 'Bangalore'),
+    -> ('Vikram Singh', 105, 15000, 'Chennai'),
+    -> ('Anjali Gupta', 106, 85000, 'Kolkata'),
+    -> ('Rohan Das', 107, 45000, 'Hyderabad'),
+    -> ('Meera Nair', 108, 300000, 'Kochi'),
+    -> ('Yash Patil', 109, 10000, 'Pune'),
+    -> ('Simran Kaur', 110, 60000, 'Chandigarh');
+Query OK, 10 rows affected (0.023 sec)
+
+
+MariaDB [se21144_db]> INSERT INTO Loan (Loan_no, branch_name, Amount) VALUES 
+    -> ('L_01', 'Main_Branch', 25000),
+    -> ('L_02', 'West_End', 40000),
+    -> ('L_03', 'City_Center', 15000),
+    -> ('L_04', 'Main_Branch', 100000),
+    -> ('L_05', 'North_Hub', 12000),
+    -> ('L_06', 'East_Side', 30000),
+    -> ('L_07', 'West_End', 22500),
+    -> ('L_08', 'South_Wing', 60000),
+    -> ('L_09', 'City_Center', 9000),
+    -> ('L_10', 'Main_Branch', 15000);
+Query OK, 10 rows affected (0.045 sec)
+
+
+MariaDB [se21144_db]> INSERT INTO Borrower (Cust_name, Loan_no, CreditScore) VALUES 
+    -> ('Amit Sharma', 'L_01', 0),
+    -> ('Priya Rai', 'L_02', 0),
+    -> ('Rahul Verma', 'L_03', 0),
+    -> ('Sneha Kapoor', 'L_04', 0),
+    -> ('Vikram Singh', 'L_05', 0),
+    -> ('Anjali Gupta', 'L_06', 0),
+    -> ('Rohan Das', 'L_07', 0),
+    -> ('Meera Nair', 'L_08', 0),
+    -> ('Yash Patil', 'L_09', 0),
+    -> ('Simran Kaur', 'L_10', 0);
+Query OK, 10 rows affected (0.029 sec)
+
+MariaDB [se21144_db]> SELECT * FROM Customer;
++--------------+-------+---------+------------+
+| Cust_name    | AccNo | Balance | city       |
++--------------+-------+---------+------------+
+| Amit Sharma  |   101 |   50000 | Mumbai     |
+| Anjali Gupta |   106 |   85000 | Kolkata    |
+| Meera Nair   |   108 |  300000 | Kochi      |
+| Priya Rai    |   102 |  120000 | Delhi      |
+| Rahul Verma  |   103 |   30000 | Pune       |
+| Rohan Das    |   107 |   45000 | Hyderabad  |
+| Simran Kaur  |   110 |   60000 | Chandigarh |
+| Sneha Kapoor |   104 |  200000 | Bangalore  |
+| Vikram Singh |   105 |   15000 | Chennai    |
+| Yash Patil   |   109 |   10000 | Pune       |
++--------------+-------+---------+------------+
+10 rows in set (0.018 sec)
+
+
+MariaDB [se21144_db]> SELECT * FROM Loan;
++---------+-------------+--------+
+| Loan_no | branch_name | Amount |
++---------+-------------+--------+
+| L_01    | Main_Branch |  25000 |
+| L_02    | West_End    |  40000 |
+| L_03    | City_Center |  15000 |
+| L_04    | Main_Branch | 100000 |
+| L_05    | North_Hub   |  12000 |
+| L_06    | East_Side   |  30000 |
+| L_07    | West_End    |  22500 |
+| L_08    | South_Wing  |  60000 |
+| L_09    | City_Center |   9000 |
+| L_10    | Main_Branch |  15000 |
++---------+-------------+--------+
+10 rows in set (0.001 sec)
+
+
+MariaDB [se21144_db]> SELECT * FROM Borrower;
++--------------+---------+-------------+
+| Cust_name    | Loan_no | CreditScore |
++--------------+---------+-------------+
+| Amit Sharma  | L_01    |           0 |
+| Anjali Gupta | L_06    |           0 |
+| Meera Nair   | L_08    |           0 |
+| Priya Rai    | L_02    |           0 |
+| Rahul Verma  | L_03    |           0 |
+| Rohan Das    | L_07    |           0 |
+| Simran Kaur  | L_10    |           0 |
+| Sneha Kapoor | L_04    |           0 |
+| Vikram Singh | L_05    |           0 |
+| Yash Patil   | L_09    |           0 |
++--------------+---------+-------------+
+10 rows in set (0.001 sec)
+
+MariaDB [se21144_db]> CREATE PROCEDURE calci_credit_score()
+    -> BEGIN
+    ->     DECLARE v_bal INT;
+    ->     DECLARE v_amt INT;
+    ->     DECLARE v_cust_name VARCHAR(50);
+    ->     DECLARE v_loan_no VARCHAR(20);
+    ->     DECLARE v_score INT;
+    ->     DECLARE done INT DEFAULT FALSE;
+    -> 
+    ->     DECLARE cust_cursor CURSOR FOR 
+    ->         SELECT c.Cust_name, b.Loan_no, c.Balance, l.Amount 
+    ->         FROM Customer c 
+    ->         JOIN Borrower b ON c.Cust_name = b.Cust_name 
+    ->         JOIN Loan l ON b.Loan_no = l.Loan_no;
+    -> 
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    -> 
+    ->     OPEN cust_cursor;
+    -> 
+    ->     read_loop: LOOP
+    ->         FETCH cust_cursor INTO v_cust_name, v_loan_no, v_bal, v_amt;
+    ->         
+    ->         IF done THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    -> 
+    ->         -- We check the most restrictive (best score) first
+    ->         -- Using balance comparison based on your requested logic
+    ->         IF v_bal >= v_amt * 4 THEN 
+    ->             SET v_score = 5;
+    ->         ELSEIF v_bal >= v_amt * 3 THEN 
+    ->             SET v_score = 4;
+    ->         ELSEIF v_bal >= v_amt * 2 THEN 
+    ->             SET v_score = 3; -- Hint: Loan is 50% of balance
+    ->         ELSEIF v_bal >= v_amt * 1.33 THEN 
+    ->             SET v_score = 2;
+    ->         ELSEIF v_bal >= v_amt THEN 
+    ->             SET v_score = 1;
+    ->         ELSE 
+    ->             SET v_score = 0; -- Loan is bigger than balance
+    ->         END IF;
+    -> 
+    ->         UPDATE Borrower 
+    ->         SET CreditScore = v_score 
+    ->         WHERE Cust_name = v_cust_name AND Loan_no = v_loan_no;
+    -> 
+    ->     END LOOP;
+    -> 
+    ->     CLOSE cust_cursor;
+    -> END &&
+Query OK, 0 rows affected (0.077 sec)
+
+
+MariaDB [se21144_db]> SELECT * FROM Borrower;
++--------------+---------+-------------+
+| Cust_name    | Loan_no | CreditScore |
++--------------+---------+-------------+
+| Amit Sharma  | L_01    |           3 |
+| Anjali Gupta | L_06    |           3 |
+| Meera Nair   | L_08    |           5 |
+| Priya Rai    | L_02    |           4 |
+| Rahul Verma  | L_03    |           3 |
+| Rohan Das    | L_07    |           3 |
+| Simran Kaur  | L_10    |           5 |
+| Sneha Kapoor | L_04    |           3 |
+| Vikram Singh | L_05    |           1 |
+| Yash Patil   | L_09    |           1 |
++--------------+---------+-------------+
+10 rows in set (0.001 sec)
+                       
+MariaDB [se21144_db]> CREATE FUNCTION calci_credit(loan_amount DECIMAL(10,2), balance DECIMAL(10,2)) 
+    -> RETURNS INT
+    -> DETERMINISTIC
+    -> BEGIN
+    ->     DECLARE percentage DECIMAL(10,2);
+    ->     DECLARE credit_score INT;
+    ->     
+    ->     
+    ->     IF balance = 0 THEN
+    ->         RETURN 0;
+    ->     END IF;
+    -> 
+    ->     SET percentage = loan_amount / balance;
+    ->     
+    ->     
+    ->     IF percentage <= 0.2 THEN
+    ->         SET credit_score = 5;
+    ->     ELSEIF percentage <= 0.4 THEN
+    ->         SET credit_score = 4;
+    ->     ELSEIF percentage <= 0.5 THEN
+    ->         SET credit_score = 3;
+    ->     ELSEIF percentage <= 0.7 THEN
+    ->         SET credit_score = 2;
+    ->     ELSEIF percentage <= 0.9 THEN
+    ->         SET credit_score = 1;
+    ->     ELSE 
+    ->         SET credit_score = 0;
+    ->     END IF;
+    -> 
+    ->     RETURN credit_score;
+    -> END //
+Query OK, 0 rows affected (0.086 sec)
+
+
+MariaDB [se21144_db]> CREATE PROCEDURE update_score()
+    -> BEGIN
+    ->     DECLARE v_bal DECIMAL(10,2);
+    ->     DECLARE v_amt DECIMAL(10,2);
+    ->     DECLARE v_loan VARCHAR(50);
+    ->     DECLARE v_name VARCHAR(50);
+    ->     DECLARE v_credit INT;
+    ->     DECLARE done INT DEFAULT FALSE;
+    -> 
+    ->     DECLARE emp_cursor CURSOR FOR
+    ->         SELECT c.Cust_name, b.Loan_no, c.Balance, l.Amount
+    ->         FROM Customer c
+    ->         JOIN Borrower b ON c.Cust_name = b.Cust_name
+    ->         JOIN Loan l ON b.Loan_no = l.Loan_no;
+    -> 
+    ->     
+    ->     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    -> 
+    ->     OPEN emp_cursor;
+    ->     
+    ->     read_loop: LOOP
+    ->         
+    ->         FETCH emp_cursor INTO v_name, v_loan, v_bal, v_amt;
+    ->         
+    ->         IF done THEN
+    ->             LEAVE read_loop;
+    ->         END IF;
+    -> 
+    ->         SET v_credit = calci_credit(v_amt, v_bal);
+    ->     
+    ->         UPDATE Borrower
+    ->         SET Creditscore = v_credit
+    ->         WHERE Cust_name = v_name AND Loan_no = v_loan;
+    ->     END LOOP;
+    -> 
+    ->     CLOSE emp_cursor;
+    -> END//
+Query OK, 0 rows affected (0.070 sec)
+
+
+MariaDB [se21144_db]> CALL update_score();//
+Query OK, 10 rows affected (0.335 sec)
+
+MariaDB [se21144_db]> SELECT * FROM Borrower;//
++--------------+---------+-------------+
+| Cust_name    | Loan_no | Creditscore |
++--------------+---------+-------------+
+| Amit Sharma  | L_01    |           3 |
+| Anjali Gupta | L_06    |           4 |
+| Meera Nair   | L_08    |           5 |
+| Priya Rai    | L_02    |           4 |
+| Rahul Verma  | L_03    |           3 |
+| Rohan Das    | L_07    |           3 |
+| Simran Kaur  | L_10    |           4 |
+| Sneha Kapoor | L_04    |           3 |
+| Vikram Singh | L_05    |           1 |
+| Yash Patil   | L_09    |           1 |
++--------------+---------+-------------+
+10 rows in set (0.412 sec)
+
+
+
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                                                                                                                                                                                                               

@@ -1,0 +1,335 @@
+test> db.createCollection('course')
+{ ok: 1 }
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+| instructor : { name : "Tony Stark",designation : "Professor",experience : 15},
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+| instructor : { name : "Tony Stark",designation : "Professor",experience : 15},
+| enrollments : [
+| { name : "Amit Shah",score : 69,status : "pass"},
+| {name : "Rahul Gandhi",score : 55,status : "fail"}
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+| instructor : { name : "Tony Stark",designation : "Professor",experience : 15},
+| enrollments : [
+| { name : "Amit Shah",score : 69,status : "pass"},
+test> db.course.insertMany([
+| {
+| title : "DBMS",
+| dept : "Computer Engineering",
+| credit_hrs : 30,
+| instructor : { name : "Tony Stark",designation : "Professor",experience : 15},
+| enrollments : [
+| { name : "Amit Shah",score : 69,status : "pass"},
+| {name : "Rahul Gandhi",score : 55,status : "fail"}
+| ]
+| },
+| {
+| title : "DSA",
+| dept : "Information Technology",
+| credit_hrs : 28,
+| instructor : { name : "Bruce Banner",designation : "Assistant Professor",experience : 8},
+| enrollments : [
+| { name : "Wanda Maximoff",score : 80,status : "pass"},
+| {name : "Bucky Barnes",score : 65,status : "pass"}
+| ]
+| },
+| {
+| title : "COA",
+| dept : "Computer Engineering",
+| credit_hrs : 25,
+| instructor : { name : "Natasha Romanoff",designation : "Assistant Professor",experience : 5},
+| enrollments : [
+| { name : "T'Challa",score : 95,status : "pass"},
+| {name : "Wanda Maximoff",score : 49,status:"fail"}
+| ]
+| }
+| ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a007ba8f109c79bab3682d1'),
+    '1': ObjectId('6a007ba8f109c79bab3682d2'),
+    '2': ObjectId('6a007ba8f109c79bab3682d3')
+  }
+}
+test> db.course.find().pretty()
+[
+  {
+    _id: ObjectId('6a007ba8f109c79bab3682d1'),
+    title: 'DBMS',
+    dept: 'Computer Engineering',
+    credit_hrs: 30,
+    instructor: { name: 'Tony Stark', designation: 'Professor', experience: 15 },
+    enrollments: [
+      { name: 'Amit Shah', score: 69, status: 'pass' },
+      { name: 'Rahul Gandhi', score: 55, status: 'fail' }
+    ]
+  },
+  {
+    _id: ObjectId('6a007ba8f109c79bab3682d2'),
+    title: 'DSA',
+    dept: 'Information Technology',
+    credit_hrs: 28,
+    instructor: {
+      name: 'Bruce Banner',
+      designation: 'Assistant Professor',
+      experience: 8
+    },
+    enrollments: [
+      { name: 'Wanda Maximoff', score: 80, status: 'pass' },
+      { name: 'Bucky Barnes', score: 65, status: 'pass' }
+    ]
+  },
+  {
+    _id: ObjectId('6a007ba8f109c79bab3682d3'),
+    title: 'COA',
+    dept: 'Computer Engineering',
+    credit_hrs: 25,
+    instructor: {
+      name: 'Natasha Romanoff',
+      designation: 'Assistant Professor',
+      experience: 5
+    },
+    enrollments: [
+      { name: "T'Challa", score: 95, status: 'pass' },
+      { name: 'Wanda Maximoff', score: 49, status: 'fail' }
+    ]
+  }
+]
+
+
+
+1. Count number of students in each course
+
+test> db.course.aggregate([
+| {
+| $project :
+| { title : 1,
+| totalStudents : { $size : "$enrollments" }
+| }
+| }
+| ])
+[
+  {
+    _id: ObjectId('6a007ba8f109c79bab3682d1'),
+    title: 'DBMS',
+    totalStudents: 2
+  },
+  {
+    _id: ObjectId('6a007ba8f109c79bab3682d2'),
+    title: 'DSA',
+    totalStudents: 2
+  },
+  {
+    _id: ObjectId('6a007ba8f109c79bab3682d3'),
+    title: 'COA',
+    totalStudents: 2
+  }
+]
+
+
+2. Average student performance per course
+
+test> db.course.aggregate([
+| {
+| $project : {
+| title : 1,
+|
+test> db.course.aggregate([
+| { $unwind : "$enrollments" },
+| { $group : {
+| _id : "$title",
+| avgScore : { $avg : "$enrollments.score" }
+| }
+| }
+| ])
+[
+  { _id: 'DSA', avgScore: 72.5 },
+  { _id: 'DBMS', avgScore: 62 },
+  { _id: 'COA', avgScore: 72 }
+]
+
+
+3. Top 5 ranked students per department
+
+
+test> db.course.aggregate([ {$unwind : "$enrollments"}, {$sort : { "enrollments.score" : -1} }, { $group : { _id : "$dept", student : { $push : { name : "$enrollments.name", score : "$enrollments.score" } } } }, {$project : {student : { $slice : ["$student",1] }}}])
+[
+  {
+    _id: 'Information Technology',
+    student: [ { name: 'Wanda Maximoff', score: 80 } ]
+  },
+  {
+    _id: 'Computer Engineering',
+    student: [ { name: "T'Challa", score: 95 } ]
+  }
+]
+
+4. Failed students per course
+
+test> db.course.aggregate([ { $unwind: "$enrollments" }, { $match: { "enrollments.status": "fail" } }, { $group: { _id: "$title", failedStudents: { $push: "$enrollments.name" } } }] )
+[
+  { _id: 'DBMS', failedStudents: [ 'Rahul Gandhi' ] },
+  { _id: 'COA', failedStudents: [ 'Wanda Maximoff' ] }
+]
+
+5. course analysis
+
+test> db.course.aggregate([
+|
+|   { $unwind: "$enrollments" },
+|
+|   {
+|     $group: {
+|       _id: "$title",
+|
+|       avgScore: {
+|         $avg: "$enrollments.score"
+|       },
+|
+|       total: {
+|         $sum: 1
+|       },
+|
+|       passed: {
+|         $sum: {
+|           $cond: [
+|             { $eq: ["$enrollments.status", "pass"] },
+|             1,
+|             0
+|           ]
+|         }
+|       }
+|     }
+|   },
+|
+|   {
+|     $project: {
+|       avgScore: 1,
+|
+|       passPercentage: {
+|         $multiply: [
+|           { $divide: ["$passed", "$total"] },
+|           100
+|         ]
+|       }
+|     }
+|   }
+|
+| ])
+[
+  { _id: 'COA', avgScore: 72, passPercentage: 50 },
+  { _id: 'DBMS', avgScore: 62, passPercentage: 50 },
+  { _id: 'DSA', avgScore: 72.5, passPercentage: 100 }
+]
+
+
+6. Experience-wise faculty course analysis
+
+
+test> db.course.aggregate([
+| { $group : {
+| _id : "$instructor.experience",
+| totalCourses : { $sum : 1}
+| }
+| }
+| ])
+[
+  { _id: 5, totalCourses: 1 },
+  { _id: 15, totalCourses: 1 },
+  { _id: 8, totalCourses: 1 }
+]
+
+
+7. Designation-wise faculty course performance
+
+
+test> db.course.aggregate([
+| { $unwind : "$enrollments" },
+| { $group : {
+| _id : "$instructor.designation",
+| avgScore : { $avg : "$enrollments.score" }
+| }
+| }
+| ])
+[
+  { _id: 'Professor', avgScore: 62 },
+  { _id: 'Assistant Professor', avgScore: 72.25 }
+]
+
+
+8. How many courses each student is enrolled in
+
+test> db.course.aggregate([
+| { $unwind : "$enrollments" },
+| { $group : {
+| _id : "$enrollments.name",
+| totalCourses : { $sum : 1}
+| }
+| }
+| ])
+[
+  { _id: "T'Challa", totalCourses: 1 },
+  { _id: 'Wanda Maximoff', totalCourses: 2 },
+  { _id: 'Amit Shah', totalCourses: 1 },
+  { _id: 'Rahul Gandhi', totalCourses: 1 },
+  { _id: 'Bucky Barnes', totalCourses: 1 }
+]
+
+9. Department-wise courses
+
+
+test> db.course.aggregate([ { $group: { _id: "$dept", Courses: { $push: "$title" } } }] )
+[
+  { _id: 'Computer Engineering', Courses: [ 'DBMS', 'COA' ] },
+  { _id: 'Information Technology', Courses: [ 'DSA' ] }
+]
+
+10. Faculty statistics
+
+
+test> db.course.aggregate([ { $unwind : "$enrollments" }, { $group : { _id : "$instructor.name", avgScore : { $avg : "$enrollments.score" }, courses : { $addToSet : "$title" } } }, { $project : { courses : {$size : "$courses" },avgScore : 1}}])
+[
+  { _id: 'Bruce Banner', avgScore: 72.5, courses: 1 },
+  { _id: 'Tony Stark', avgScore: 62, courses: 1 },
+  { _id: 'Natasha Romanoff', avgScore: 72, courses: 1 }
+]
+
+11. Full course analytics
+

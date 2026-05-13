@@ -1,0 +1,296 @@
+test> db.prod.insertMany([
+| {
+| name: 'TV',
+| sku : 'TV-101',
+| category : 'Electronics',
+| price : 25000,
+| tags : ['OLED','Smart'],
+| description : 'A superb TV with dolby atmos'
+| },
+| {
+| name : 'Jeans',
+| sku : 'J-110',
+| category : 'Cloth',
+| price : 3000,
+| tags : ['Strechable','Comfortable'],
+| description : 'A cool and stylish jeans'
+| }
+| ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a0058534c3b1e488f3682d7'),
+    '1': ObjectId('6a0058534c3b1e488f3682d8')
+  }
+}
+
+
+test> db.prod.find().pretty()
+[
+  {
+    _id: ObjectId('6a0057814c3b1e488f3682d5'),
+    name: 'Smartwatch',
+    sku: 'SW-101',
+    category: 'Electronics',
+    price: 1950,
+    tags: [ 'Fitness', 'Bluetooth', 'Calling' ],
+    description: 'An exciting smartwtach with the best performance'
+  },
+  {
+    _id: ObjectId('6a0057814c3b1e488f3682d6'),
+    name: 'Study Table',
+    sku: 'ST-101',
+    category: 'Furniture',
+    price: 2500,
+    tags: [ 'Wooden', 'Brown' ],
+    descritption: 'An exciting material to improve your studies'
+  },
+  {
+    _id: ObjectId('6a0058534c3b1e488f3682d7'),
+    name: 'TV',
+    sku: 'TV-101',
+    category: 'Electronics',
+    price: 25000,
+    tags: [ 'OLED', 'Smart' ],
+    description: 'A superb TV with dolby atmos'
+  },
+  {
+    _id: ObjectId('6a0058534c3b1e488f3682d8'),
+    name: 'Jeans',
+    sku: 'J-110',
+    category: 'Cloth',
+    price: 3000,
+    tags: [ 'Strechable', 'Comfortable' ],
+    description: 'A cool and stylish jeans'
+  }
+]
+
+
+test> db.ord.insertMany([
+| {
+| order_id : 101,
+| cust_id : 1,
+| status : 'Delivered',
+| products : ['TV-101','J-110'],
+| total_price : 28000,
+| order_date : new Date()
+| },
+| {
+| order_id : 102,
+| cust_id : 2,
+| status : 'Cancelled',
+| products : ['ST-101','SW-101'],
+| total_price : 4450,
+| order_date : new Date()
+| }
+| ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a0059bb4c3b1e488f3682d9'),
+    '1': ObjectId('6a0059bb4c3b1e488f3682da')
+  }
+}
+test> db.ord.find().pretty()
+[
+  {
+    _id: ObjectId('6a0059bb4c3b1e488f3682d9'),
+    order_id: 101,
+    cust_id: 1,
+    status: 'Delivered',
+    products: [ 'TV-101', 'J-110' ],
+    total_price: 28000,
+    order_date: ISODate('2026-05-10T10:11:07.494Z')
+  },
+  {
+    _id: ObjectId('6a0059bb4c3b1e488f3682da'),
+    order_id: 102,
+    cust_id: 2,
+    status: 'Cancelled',
+    products: [ 'ST-101', 'SW-101' ],
+    total_price: 4450,
+    order_date: ISODate('2026-05-10T10:11:07.494Z')
+  }
+]
+
+test> db.prod.find({ sku : "J-110" }).explain("executionStats")
+
+Single Index 
+
+test> db.ord.createIndex({order_id : 1})
+order_id_1
+test> db.ord.find({order_id : 102})
+[
+  {
+    _id: ObjectId('6a0059bb4c3b1e488f3682da'),
+    order_id: 102,
+    cust_id: 2,
+    status: 'Cancelled',
+    products: [ 'ST-101', 'SW-101' ],
+    total_price: 4450,
+    order_date: ISODate('2026-05-10T10:11:07.494Z')
+  }
+]
+
+Multiple Index
+
+test> db.prod.createIndex({category : 1,price : -1})
+category_1_price_-1
+
+test> db.prod.find( { category: 'Cloth' ,  price: { $gte: 3000 } } )
+[
+  {
+    _id: ObjectId('6a0058534c3b1e488f3682d8'),
+    name: 'Jeans',
+    sku: 'J-110',
+    category: 'Cloth',
+    price: 3000,
+    tags: [ 'Strechable', 'Comfortable' ],
+    description: 'A cool and stylish jeans'
+  }
+]
+
+
+Multikey Index
+
+test> db.prod.createIndex({ tags : 1})
+tags_1
+test> db.prod.find({tags : 'Smart'})
+[
+  {
+    _id: ObjectId('6a0058534c3b1e488f3682d7'),
+    name: 'TV',
+    sku: 'TV-101',
+    category: 'Electronics',
+    price: 25000,
+    tags: [ 'OLED', 'Smart' ],
+    description: 'A superb TV with dolby atmos'
+  }
+]
+
+
+Text Index 
+
+
+test> db.prod.createIndex({description : "text"})
+description_text
+
+test> db.prod.find({ $text : { $search : 'exciting' } })
+[
+  {
+    _id: ObjectId('6a0057814c3b1e488f3682d6'),
+    name: 'Study Table',
+    sku: 'ST-101',
+    category: 'Furniture',
+    price: 2500,
+    tags: [ 'Wooden', 'Brown' ],
+    description: 'An exciting material to improve your studies'
+  },
+  {
+    _id: ObjectId('6a0057814c3b1e488f3682d5'),
+    name: 'Smartwatch',
+    sku: 'SW-101',
+    category: 'Electronics',
+    price: 1950,
+    tags: [ 'Fitness', 'Bluetooth', 'Calling' ],
+    description: 'An exciting smartwtach with the best performance'
+  }
+]
+
+Unique Index
+
+
+test> db.prod.createIndex({sku : 1},{unique : true})
+sku_1
+test> db.prod.insertOne(
+| {
+| name : "blah",
+| sku : 'ST-101'
+| }
+| )
+MongoServerError: E11000 duplicate key error collection: test.prod index: sku_1 dup key: { sku: "ST-101" }
+
+
+Hashed Index
+
+
+test> db.ord.createIndex({price : "hashed"})
+price_hashed
+
+TTL index
+
+test> db.ord.createIndex({order_date : 1},{expireAfterSeconds : 10})
+order_date_1
+test> db.ord.find()
+
+Important Viva Point
+
+TTL indexes work only on:
+
+Date fields
+
+like:
+
+new Date()
+ISODate()
+
+not on strings or numbers.
+
+
+Sparse Index
+
+test> db.prod.updateOne(
+| { name : 'Jeans' },
+| { $set : { review : 4.9}}
+| )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+test> db.prod.find()
+[
+  {
+    _id: ObjectId('6a0057814c3b1e488f3682d5'),
+    name: 'Smartwatch',
+    sku: 'SW-101',
+    category: 'Electronics',
+    price: 1950,
+    tags: [ 'Fitness', 'Bluetooth', 'Calling' ],
+    description: 'An exciting smartwtach with the best performance'
+  },
+  {
+    _id: ObjectId('6a0057814c3b1e488f3682d6'),
+    name: 'Study Table',
+    sku: 'ST-101',
+    category: 'Furniture',
+    price: 2500,
+    tags: [ 'Wooden', 'Brown' ],
+    description: 'An exciting material to improve your studies'
+  },
+  {
+    _id: ObjectId('6a0058534c3b1e488f3682d7'),
+    name: 'TV',
+    sku: 'TV-101',
+    category: 'Electronics',
+    price: 25000,
+    tags: [ 'OLED', 'Smart' ],
+    description: 'A superb TV with dolby atmos'
+  },
+  {
+    _id: ObjectId('6a0058534c3b1e488f3682d8'),
+    name: 'Jeans',
+    sku: 'J-110',
+    category: 'Cloth',
+    price: 3000,
+    tags: [ 'Strechable', 'Comfortable' ],
+    description: 'A cool and stylish jeans',
+    review: 4.9
+  }
+]
+test> db.prod.createIndex({review : 1},{sparse : true})
+review_1
+
+

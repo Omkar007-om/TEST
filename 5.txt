@@ -1,0 +1,761 @@
+test> db.createCollection('professors');
+{ ok: 1 }
+
+test> db.professors.insertMany([
+| {
+| name : 'Steve Rogers',
+| qualification : 'B. Tech',
+| dept_details : { dept_name : 'IT' , building : 'A1' },
+| experience : 10,
+| salary : 150000,
+| date_of_joining : new Date('2016-05-03'),
+| expertise : ['CNT','DBMS']
+| },
+| {
+| name : 'Bruce Banner',
+| qualification : 'PhD',
+| dept_details : { dept_name : 'Physics' ,building : 'A2' },
+| experience : 20,
+| salary : 300000,
+| date_of_joining : new Date('2006-02-01'),
+| expertise : ['QP','EM waves']
+| }
+| ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a0048c84c3b1e488f3682d1'),
+    '1': ObjectId('6a0048c84c3b1e488f3682d2')
+  }
+}
+
+
+test> db.professors.find().pretty()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 150000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    qualification: 'PhD',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 300000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ]
+  }
+]
+
+
+test> db.professors.insertMany([
+| {
+| name : 'Natasha Romanoff',
+| qualification : 'B. Tech',
+| dept_details : { dept_name : 'Mechanical',building : 'A3' },
+| experience : 5,
+| salary : 100000,
+| date_of_joining : new Date('2021-01-03'),
+| expertise : ['Thermodynamics','Fluid Mechanics']
+| },
+| {
+| name : 'Tony Stark',
+| qualification : 'M. Tech',
+| dept_details : { dept_name : 'CS', building : 'B1' },
+| experience : 15,
+| salary : 200000,
+| date_of_joining : new Date('2010-05-01'),
+| expertise : ['DSA','DBMS']
+| }
+| ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a004a144c3b1e488f3682d3'),
+    '1': ObjectId('6a004a144c3b1e488f3682d4')
+  }
+}
+
+
+test> db.professors.find().pretty()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 150000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    qualification: 'PhD',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 300000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 100000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    qualification: 'M. Tech',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 200000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ]
+  }
+]
+
+
+
+test> db.professors.find(
+| {},
+| {name : 1,salary : 1,_id : 0}
+| )
+[
+  { name: 'Steve Rogers', salary: 150000 },
+  { name: 'Bruce Banner', salary: 300000 },
+  { name: 'Natasha Romanoff', salary: 100000 },
+  { name: 'Tony Stark', salary: 200000 }
+]
+
+test> db.professors.find( { salary: { $gt: 150000 } }, {name : 1,_id : 0} )
+[ { name: 'Bruce Banner' }, { name: 'Tony Stark' } ]
+
+test> db.professors.find( {salary : { $lt : 200000 } }, {name : 1, _id : 0 } )
+[ { name: 'Steve Rogers' }, { name: 'Natasha Romanoff' } ]
+
+test> db.professors.find( {salary : { $lt : 300000 } }, {name : 1, _id : 0 } )
+[
+  { name: 'Steve Rogers' },
+  { name: 'Natasha Romanoff' },
+  { name: 'Tony Stark' }
+]
+
+test> db.professors.find( { salary : { $lt : 200000, $gt : 100000 } }, {name : 1,_id : 0})
+[ { name: 'Steve Rogers' } ]
+
+test> db.professors.find({ $and: [ { experience: { $gt: 10 } }, { salary: { $lt: 250000 } }] } )
+[
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    qualification: 'M. Tech',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 200000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ]
+  }
+]
+
+test> db.professors.find(
+| { expertise : "DBMS" }
+| )
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 150000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    qualification: 'M. Tech',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 200000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ]
+  }
+]
+
+
+test> db.professors.find( { expertise: { $all: ['DSA', 'DBMS'] } } )
+[
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    qualification: 'M. Tech',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 200000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ]
+  }
+]
+
+test> db.professors.find( { $or: [ { "dept_details.dept_name": "IT" }, { "dept_details.dept_name": "CS" }] }, { name: 1, _id: 0 } )
+[ { name: 'Steve Rogers' }, { name: 'Tony Stark' } ]
+
+test> db.professors.find(
+| { "dept_details.building" : 'A3' }
+| )
+[
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 100000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ]
+  }
+]
+
+
+test> db.professors.find().sort({experience : -1})
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    qualification: 'PhD',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 300000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    qualification: 'M. Tech',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 200000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 150000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 100000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ]
+  }
+]
+
+test> db.professors.find().sort({salary : 1})
+[
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 100000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ]
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 150000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    qualification: 'M. Tech',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 200000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    qualification: 'PhD',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 300000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ]
+  }
+]
+
+
+test> db.professors.find().sort({experience : 1}).limit(2)
+[
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 100000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ]
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 150000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ]
+  }
+]
+
+
+test> db.professors.updateOne(
+| { name : 'Natasha Romanoff' },
+| { $set : {salary : 125000} }
+| )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+test> db.professors.find()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 150000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    qualification: 'PhD',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 300000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 125000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    qualification: 'M. Tech',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 200000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ]
+  }
+]
+
+
+test> db.professors.updateMany(
+| {},
+| {$inc : {salary : 5000}}
+| )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 4,
+  modifiedCount: 4,
+  upsertedCount: 0
+}
+test> db.professors.find().pretty()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 155000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ]
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    qualification: 'PhD',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 305000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    qualification: 'B. Tech',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 130000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ]
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    qualification: 'M. Tech',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 205000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ]
+  }
+]
+
+
+test> db.professors.updateMany(
+| {},
+| {$rename : {"qualification" : "degree" } }
+| )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 4,
+  modifiedCount: 4,
+  upsertedCount: 0
+}
+test> db.professors.find().pretty()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 155000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ],
+    degree: 'B. Tech'
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 305000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ],
+    degree: 'PhD'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 130000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ],
+    degree: 'B. Tech'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 205000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ],
+    degree: 'M. Tech'
+  }
+]
+
+
+test> db.professors.updateMany( {}, {$set : {appointment_nature : "Permanent" }} )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 4,
+  modifiedCount: 4,
+  upsertedCount: 0
+}
+test> db.professors.find().pretty()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 155000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ],
+    degree: 'B. Tech',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 305000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ],
+    degree: 'PhD',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 130000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ],
+    degree: 'B. Tech',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 205000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ],
+    degree: 'M. Tech',
+    appointment_nature: 'Permanent'
+  }
+]
+
+
+test> db.professors.updateOne(
+| { name : "Steve Rogers"},
+| { $push : {expertise : "AI"} }
+| )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+test> db.professors.find().pretty()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 155000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS', 'AI' ],
+    degree: 'B. Tech',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 305000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ],
+    degree: 'PhD',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 130000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ],
+    degree: 'B. Tech',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 205000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ],
+    degree: 'M. Tech',
+    appointment_nature: 'Permanent'
+  }
+]
+
+
+test> db.professors.updateOne(
+| {name : "Steve Rogers"},
+| {$pull : {expertise : "AI"}}
+| )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+test> db.professors.find().pretty()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 155000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ],
+    degree: 'B. Tech',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 305000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ],
+    degree: 'PhD',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d3'),
+    name: 'Natasha Romanoff',
+    dept_details: { dept_name: 'Mechanical', building: 'A3' },
+    experience: 5,
+    salary: 130000,
+    date_of_joining: ISODate('2021-01-03T00:00:00.000Z'),
+    expertise: [ 'Thermodynamics', 'Fluid Mechanics' ],
+    degree: 'B. Tech',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 205000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ],
+    degree: 'M. Tech',
+    appointment_nature: 'Permanent'
+  }
+]
+
+
+test> db.professors.deleteMany(
+| { experience : { $lte : 5 } }
+| )
+{ acknowledged: true, deletedCount: 1 }
+test> db.professors.find().pretty()
+[
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d1'),
+    name: 'Steve Rogers',
+    dept_details: { dept_name: 'IT', building: 'A1' },
+    experience: 10,
+    salary: 155000,
+    date_of_joining: ISODate('2016-05-03T00:00:00.000Z'),
+    expertise: [ 'CNT', 'DBMS' ],
+    degree: 'B. Tech',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a0048c84c3b1e488f3682d2'),
+    name: 'Bruce Banner',
+    dept_details: { dept_name: 'Physics', building: 'A2' },
+    experience: 20,
+    salary: 305000,
+    date_of_joining: ISODate('2006-02-01T00:00:00.000Z'),
+    expertise: [ 'QP', 'EM waves' ],
+    degree: 'PhD',
+    appointment_nature: 'Permanent'
+  },
+  {
+    _id: ObjectId('6a004a144c3b1e488f3682d4'),
+    name: 'Tony Stark',
+    dept_details: { dept_name: 'CS', building: 'B1' },
+    experience: 15,
+    salary: 205000,
+    date_of_joining: ISODate('2010-05-01T00:00:00.000Z'),
+    expertise: [ 'DSA', 'DBMS' ],
+    degree: 'M. Tech',
+    appointment_nature: 'Permanent'
+  }
+]
+
+
+Drop Collection
+db.professors.drop()
+
+test> db.professors.countDocuments()
+3
+
+test> db.professors.distinct("dept_details.dept_name")
+[ 'CS', 'IT', 'Physics' ]
+
+
+
+Very Important Operators For Viva
+Operator	Meaning
+$gt	Greater than
+$lt	Less than
+$gte	Greater than equal
+$lte	Less than equal
+$ne	Not equal
+$and	Logical AND
+$or	Logical OR
+$not	NOT
+$nor	NOR
+$set	Change value
+$inc	Increment
+$push	Add into array
+$pull	Remove from array
